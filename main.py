@@ -83,14 +83,14 @@ class Game:
 
         self.play_bg_music()
         self.surface = pygame.display.set_mode((1000, 800))
-        self.snake = Snake(self.surface, 1)
+        self.snake = Snake(self.surface, 7)
         self.snake.draw()
         self.apple = Apple(self.surface)
         self.apple.draw()
 
     def is_collision(self, x1, y1, x2, y2):
-        if x1 >= x2 and x1 <= x2 + SIZE: #At first there is " + SIZE" here in the video example but when I test there is a bug
-            if y1 >= y2 and y1 <= y2 + SIZE: #At first there is " + SIZE" here in the video example but when I test there is a bug
+        if x1 >= x2 and x1 < x2 + SIZE: 
+            if y1 >= y2 and y1 < y2 + SIZE: 
                 return True
         return False
 
@@ -160,21 +160,37 @@ class Game:
                         running = False
 
                     if event.key == K_RETURN:
-                        pygame.mixer.music.unpause()
+                        self.snake.direction = 'down'
                         pause = False
 
                     if not pause:
 
                         if event.key == K_LEFT:
+                            if self.snake.direction == 'right':
+                                self.show_game_over()
+                                pause = True
+                                self.reset()
                             self.snake.move_left()
 
                         if event.key == K_RIGHT:
+                            if self.snake.direction == 'left':
+                                self.show_game_over()
+                                pause = True
+                                self.reset()
                             self.snake.move_right()
                     
                         if event.key == K_UP:
+                            if self.snake.direction == 'down':
+                                self.show_game_over()
+                                pause = True
+                                self.reset()
                             self.snake.move_up()
 
                         if event.key == K_DOWN:
+                            if self.snake.direction == 'up':
+                                self.show_game_over()
+                                pause = True
+                                self.reset()
                             self.snake.move_down()
 
                 elif event.type == QUIT:
@@ -188,7 +204,7 @@ class Game:
                 pause = True
                 self.reset()
 
-            time.sleep(0.3)
+            time.sleep(0.1)
 
 if __name__ == "__main__":
     game = Game()
