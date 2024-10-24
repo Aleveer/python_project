@@ -132,6 +132,11 @@ class Game:
                 raise("GAME OVER!!")
                 #exit(0)
 
+        #snake touch the boundary
+        if self.snake.x[0] < 0 or self.snake.x[0] >= 1000 or self.snake.y[0] < 0 or self.snake.y[0] >= 800:
+            self.play_sound("crash")
+            raise("GAME OVER!!")
+
     
     def display_score(self):
         font = pygame.font.SysFont('arial', 30)
