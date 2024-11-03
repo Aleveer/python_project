@@ -130,7 +130,7 @@ class PlayScreen(Screen):
         # food
         self.food = Food(self.SCREEN)
         # snake
-        self.snake = Snake(self.SCREEN, 7)
+        self.snake = Snake(self.SCREEN, 5)
 
     def handle_events(self, events):
         super().handle_events(events)
@@ -222,10 +222,18 @@ class PlayScreen(Screen):
         if self.snake.collision_check(self.food):
             self.food.move()
             self.snake.increase_length()
+        #collision check with wall
+        if self.snake.x[0] < 0 or self.snake.x[0] >= 1280 or self.snake.y[0] < 0 or self.snake.y[0] >= 720:
+            # pygame.mixer.music.stop()
+            # self.play_sound("gameover")
+            self.game.set_screen(self.game.screen_menu)
+            self.game.screen_play = PlayScreen(self.game)
+
         # collision check with itself
         for i in range(2, self.snake.length):
             if self.snake.x[0] == self.snake.x[i] and self.snake.y[0] == self.snake.y[i]:
                 self.game.set_screen(self.game.screen_menu)
+                self.game.screen_play = PlayScreen(self.game)
                 # self.game.screen_menu.display_test()
 
     def draw(self):
