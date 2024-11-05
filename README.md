@@ -1,6 +1,6 @@
 <!-- Note -->
 ### Note
-- Boundary copy code from Nguyên still has errors
+- Đoạn code Boundary copy của Nguyên vô còn bị lỗi
 
 <!-- How to get score and mode (Cách lấy score và mode) -->
 ### How to Get Score and Mode (Cách lấy score và mode)
@@ -15,4 +15,6 @@
    Ngay sau khi game kết thúc, lấy điểm số và chế độ chơi bằng lệnh sau:
    ```python
    score = self.game.score_and_mode.get_score()
+
+   ```python
    mode = self.game.score_and_mode.get_mode()
