@@ -130,7 +130,7 @@ class PlayScreen(Screen):
         # food
         self.food = Food(self.SCREEN)
         # snake
-        self.snake = Snake(self.SCREEN, 5)
+        self.snake = Snake(self.SCREEN, 2)
 
     def handle_events(self, events):
         super().handle_events(events)
@@ -190,7 +190,7 @@ class PlayScreen(Screen):
 
     def display_score(self):
         # font = pygame.font.SysFont('arial', 30)
-        score = get_font(25).render(f"Score: {self.snake.length}", True, (255, 255, 255))
+        score = get_font(25).render(f"Score: {self.game.score_and_mode.get_score()}", True, (255, 255, 255))
         self.SCREEN.blit(score,(1000, 10))         
 
     def display_test(self):
@@ -222,20 +222,26 @@ class PlayScreen(Screen):
         if self.snake.collision_check(self.food):
             self.food.move()
             self.snake.increase_length()
+            self.game.score_and_mode.increase_score()
         #collision check with wall
         if self.snake.x[0] < 0 or self.snake.x[0] >= 1280 or self.snake.y[0] < 0 or self.snake.y[0] >= 720:
             # pygame.mixer.music.stop()
             # self.play_sound("gameover")
             self.game.set_screen(self.game.screen_menu)
+            # reset screen play
             self.game.screen_play = PlayScreen(self.game)
+            # reset score
+            self.game.score_and_mode.reset_score()
 
         # collision check with itself
         for i in range(2, self.snake.length):
             if self.snake.x[0] == self.snake.x[i] and self.snake.y[0] == self.snake.y[i]:
                 self.game.set_screen(self.game.screen_menu)
+                # reset screen play 
                 self.game.screen_play = PlayScreen(self.game)
-                # self.game.screen_menu.display_test()
-
+                # reset score
+                self.game.score_and_mode.reset_score()
+                
     def draw(self):
         # background
         self.SCREEN.blit(self.BG, (0, 0))
@@ -353,7 +359,12 @@ class Score_and_Mode:
         return self.score
 
     def increase_score(self):
-        self.score += 1
+        if self.mode == "easy":
+            self.score += 1
+        elif self.mode == "normal":
+            self.score += 2
+        elif self.mode == "hard":
+            self.score += 3
 
     def reset_score(self):
         self.score = 0
