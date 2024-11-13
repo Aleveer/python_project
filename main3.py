@@ -64,24 +64,19 @@ class MainMenu(Screen):
         self.QUIT_BUTTON.changeColor(self.MENU_MOUSE_POS)
         self.PLAY_BUTTON.update(self.SCREEN)
         self.QUIT_BUTTON.update(self.SCREEN)
-        self.display_test()
-        self.draw_mode() 
+        # self.display_test()
+        # self.draw_mode() 
 
     def draw(self):
         # background
         self.SCREEN.blit(self.BG, (0, 0))
         # title
         self.SCREEN.blit(self.MENU_TEXT, self.MENU_RECT)
-        # buttons
-        # self.display_test()
-        # test
-
     
     def display_test(self):
         # mouse position
         mouse_pos = get_font(12).render(f"Mouse Pos: {self.MENU_MOUSE_POS}", True, (255, 255, 255))
         self.SCREEN.blit(mouse_pos,(1000, 40))
-
         # mode
         mode = get_font(12).render(f"Mode: {self.game.score_and_mode.get_mode()}", True, (255, 255, 255))
         self.SCREEN.blit(mode,(1000, 60))
@@ -135,15 +130,14 @@ class PlayScreen(Screen):
     def handle_events(self, events):
         super().handle_events(events)
         for event in events:
-            #######
             # test click food
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if checkForInput(self.food, self.PLAY_MOUSE_POS):
-                    # self.food.move()
-                    # self.game.running = False
-                    print("clicked")
-            #######
-
+            '''
+            # if event.type == pygame.MOUSEBUTTONDOWN:
+            #     if checkForInput(self.food, self.PLAY_MOUSE_POS):
+            #         # self.food.move()
+            #         # self.game.running = False
+            #         print("clicked")
+            '''
             # check for key presses BASE
             '''
             if event.type == pygame.KEYDOWN:
@@ -169,7 +163,6 @@ class PlayScreen(Screen):
                 if event.key == pygame.K_ESCAPE:
                     self.game.set_screen(self.game.screen_menu)
                 if not self.snake.direction_changed:
-                    # print("direction not changed")
                     # press left arrow
                     if event.key == pygame.K_LEFT and self.snake.direction != "right":
                         self.snake.move_left()
@@ -187,9 +180,7 @@ class PlayScreen(Screen):
                         self.snake.move_down()
                         self.snake.direction_changed = True
 
-
     def display_score(self):
-        # font = pygame.font.SysFont('arial', 30)
         score = get_font(25).render(f"Score: {self.game.score_and_mode.get_score()}", True, (255, 255, 255))
         self.SCREEN.blit(score,(1000, 10))         
 
@@ -212,36 +203,56 @@ class PlayScreen(Screen):
 
     def update(self):
         # print("updating")
+        # update mouse position
         self.PLAY_MOUSE_POS = pygame.mouse.get_pos()
+        # test ability
+        self.display_test()
+        # update snake rect
         self.snake.rect = self.snake.block.get_rect(topleft=(self.snake.x[0], self.snake.y[0]))
         # reset direction change flag
         self.snake.direction_changed = False
-        # self.food.draw()
+        # move the snake
         self.snake.walk()
+
         # collision check with food
         if self.snake.collision_check(self.food):
             self.food.move()
             self.snake.increase_length()
             self.game.score_and_mode.increase_score()
+
         #collision check with wall
-        if self.snake.x[0] < 0 or self.snake.x[0] >= 1280 or self.snake.y[0] < 0 or self.snake.y[0] >= 720:
-            # pygame.mixer.music.stop()
-            # self.play_sound("gameover")
-            self.game.set_screen(self.game.screen_menu)
-            # reset screen play
-            self.game.screen_play = PlayScreen(self.game)
-            # reset score
-            self.game.score_and_mode.reset_score()
+        if self.snake.x[0] < 0:
+            self.temp()
+            print("wrong x<0")
+        if self.snake.x[0] > 1280:
+            self.temp()
+            print("wrong x>1280")
+        if self.snake.y[0] < 0:
+            self.temp()
+            print("wrong y<0")
+        if self.snake.y[0] > 720:
+            self.temp()
+            print("wrong y>720")
+            
 
         # collision check with itself
         for i in range(2, self.snake.length):
             if self.snake.x[0] == self.snake.x[i] and self.snake.y[0] == self.snake.y[i]:
-                self.game.set_screen(self.game.screen_menu)
+                self.game.current_screen = self.game.screen_menu
                 # reset screen play 
                 self.game.screen_play = PlayScreen(self.game)
                 # reset score
                 self.game.score_and_mode.reset_score()
-                
+
+    def temp(self):
+        # pygame.mixer.music.stop()
+        # self.play_sound("gameover")
+        self.game.current_screen = self.game.screen_menu
+        # reset screen play
+        self.game.screen_play = PlayScreen(self.game)
+        # reset score
+        self.game.score_and_mode.reset_score()
+         
     def draw(self):
         # background
         self.SCREEN.blit(self.BG, (0, 0))
@@ -251,8 +262,6 @@ class PlayScreen(Screen):
         self.snake.draw()
         # score
         self.display_score()
-        # test
-        self.display_test()
 
 SIZE = 40
 
@@ -377,6 +386,7 @@ class Score_and_Mode:
         self.reset_mode()
 
 # test
+'''
 # font = pygame.font.Font(None, 50)
 # text_surface = font.render(self.MENU_MOUSE_POS, True, (0, 0, 0))
 # text_rect = text_surface.get_rect(center=(10, 10))
@@ -384,7 +394,7 @@ class Score_and_Mode:
 # def display_test (self):
 #         score = get_font(25).render(f"Score: {self.screen_play.snake.}", True, (255, 255, 255))
 #         self.SCREEN.blit(score,(1000, 10))
-
+'''
 ########## GAME ##########
 class Game:
     def __init__(self):
@@ -392,11 +402,9 @@ class Game:
         self.screen_play = PlayScreen(self)
         self.screen_menu = MainMenu(self)
 
-
         # set the current screen
         self.current_screen = self.screen_menu
         self.recent_screen = self.screen_menu
-
 
         # score and mode
         self.score_and_mode = Score_and_Mode(self)
@@ -406,8 +414,12 @@ class Game:
         self.running = True
 
     def set_screen(self, screen):
-        self.recent_screen = self.current_screen
-        self.current_screen = screen
+        if self.current_screen != screen:
+            self.current_screen = screen
+            # self.recent_screen = self.current_screen
+
+            self.current_screen.draw()
+            pygame.display.update()
 
     def run(self):
         self.current_screen.draw()
@@ -418,17 +430,17 @@ class Game:
 
             # draw the screen
             self.current_screen.draw()
-            # if self.current_screen != self.recent_screen:
-            #     print("drawing")
+            
             # handle events
             self.current_screen.handle_events(events)
+
             # update the screen
             self.current_screen.update()
 
             # Limit to 60 frames per second
             if self.current_screen == self.screen_play:
                 if self.score_and_mode.get_mode() == "easy":
-                    self.clock.tick(7)
+                    self.clock.tick(2)
                 elif self.score_and_mode.get_mode() == "normal":
                     self.clock.tick(15)
                 elif self.score_and_mode.get_mode() == "hard":

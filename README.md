@@ -15,6 +15,8 @@
    Ngay sau khi game kết thúc, lấy điểm số và chế độ chơi bằng lệnh sau:
    ```python
    score = self.game.score_and_mode.get_score()
-
+   ```
    ```python
    mode = self.game.score_and_mode.get_mode()
+   ```
+
