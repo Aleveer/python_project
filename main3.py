@@ -126,6 +126,9 @@ class PlayScreen(Screen):
         self.food = Food(self.SCREEN)
         # snake
         self.snake = Snake(self.SCREEN, 2)
+        # timer for snake movement
+        self.snake_move_timer = 0
+        self.snake_move_delay = 50  # milliseconds
 
     def handle_events(self, events):
         super().handle_events(events)
@@ -203,16 +206,21 @@ class PlayScreen(Screen):
 
     def update(self):
         # print("updating")
+        # reset direction change flag
+        self.snake.direction_changed = False
+
         # update mouse position
         self.PLAY_MOUSE_POS = pygame.mouse.get_pos()
         # test ability
         self.display_test()
         # update snake rect
         self.snake.rect = self.snake.block.get_rect(topleft=(self.snake.x[0], self.snake.y[0]))
-        # reset direction change flag
-        self.snake.direction_changed = False
-        # move the snake
-        self.snake.walk()
+        
+        # update snake movement based on timer
+        self.snake_move_timer += self.game.clock.get_time()
+        if self.snake_move_timer >= self.snake_move_delay:
+            self.snake.walk()
+            self.snake_move_timer = 0
 
         # collision check with food
         if self.snake.collision_check(self.food):
@@ -221,19 +229,8 @@ class PlayScreen(Screen):
             self.game.score_and_mode.increase_score()
 
         #collision check with wall
-        if self.snake.x[0] < 0:
+        if self.snake.x[0] < 0 or self.snake.x[0] >= 1280-SIZE or self.snake.y[0] < 0 or self.snake.y[0] >= 720-SIZE:
             self.temp()
-            print("wrong x<0")
-        if self.snake.x[0] > 1280:
-            self.temp()
-            print("wrong x>1280")
-        if self.snake.y[0] < 0:
-            self.temp()
-            print("wrong y<0")
-        if self.snake.y[0] > 720:
-            self.temp()
-            print("wrong y>720")
-            
 
         # collision check with itself
         for i in range(2, self.snake.length):
@@ -268,7 +265,7 @@ SIZE = 40
 class Food:
     def __init__(self, parent_screen):
         self.parent_screen = parent_screen
-        self.image = pygame.image.load("resources/apple.jpg")
+        self.image = pygame.image.load("resources/apple1.png").convert_alpha()
         self.x = SIZE * 3
         self.y = SIZE * 3
         # add rect to test
@@ -286,7 +283,7 @@ class Food:
 class Snake:
     def __init__(self,parent_screen,length):
         self.parent_screen = parent_screen
-        self.block = pygame.image.load("resources/block.jpg").convert()
+        self.block = pygame.image.load("resources/body.png").convert_alpha()
         # default length
         self.length = length
         # default position
@@ -297,7 +294,7 @@ class Snake:
         # flag for direction change
         self.direction_changed = False
         # default speed
-        self.speed = SIZE
+        self.speed = 5
         # add rect to test
         self.rect = self.block.get_rect(topleft=(self.x[0], self.y[0]))
 
@@ -343,9 +340,10 @@ class Snake:
 
     # increase length
     def increase_length(self):
-        self.x.append(self.x[-1])
-        self.y.append(self.y[-1])
-        self.length += 1
+        for i in range(5):
+            self.x.append(self.x[-1])
+            self.y.append(self.y[-1])
+            self.length += 1
 
 # SCORE AND MODE
 class Score_and_Mode:
@@ -440,7 +438,7 @@ class Game:
             # Limit to 60 frames per second
             if self.current_screen == self.screen_play:
                 if self.score_and_mode.get_mode() == "easy":
-                    self.clock.tick(2)
+                    self.clock.tick(60)
                 elif self.score_and_mode.get_mode() == "normal":
                     self.clock.tick(15)
                 elif self.score_and_mode.get_mode() == "hard":

@@ -1,6 +1,6 @@
 <!-- Note -->
 ### Note
-- Đoạn code Boundary copy của Nguyên vô còn bị lỗi
+- handle lại phần quẹo(đợi đi được 40px mới được quẹo tiếp)
 
 <!-- How to get score and mode (Cách lấy score và mode) -->
 ### How to Get Score and Mode (Cách lấy score và mode)
