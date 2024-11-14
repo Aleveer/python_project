@@ -1,5 +1,6 @@
 <!-- Note -->
 ### Note
+-tessssssst
 - handle lại phần quẹo(đợi đi được 40px mới được quẹo tiếp)
 
 <!-- How to get score and mode (Cách lấy score và mode) -->
