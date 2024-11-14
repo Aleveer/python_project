@@ -165,23 +165,27 @@ class PlayScreen(Screen):
                 # press esc
                 if event.key == pygame.K_ESCAPE:
                     self.game.set_screen(self.game.screen_menu)
-                if not self.snake.direction_changed:
+                if not self.snake.direction_changed and self.snake.move_counter >= SIZE:
                     # press left arrow
                     if event.key == pygame.K_LEFT and self.snake.direction != "right":
                         self.snake.move_left()
                         self.snake.direction_changed = True
+                        self.snake.move_counter = 0
                     # press right arrow
                     if event.key == pygame.K_RIGHT and self.snake.direction != "left":
                         self.snake.move_right()
                         self.snake.direction_changed = True
+                        self.snake.move_counter = 0
                     # press up arrow
                     if event.key == pygame.K_UP and self.snake.direction != "down":
                         self.snake.move_up()
                         self.snake.direction_changed = True
+                        self.snake.move_counter = 0
                     # press down arrow
                     if event.key == pygame.K_DOWN and self.snake.direction != "up":
                         self.snake.move_down()
                         self.snake.direction_changed = True
+                        self.snake.move_counter = 0
 
     def display_score(self):
         score = get_font(25).render(f"Score: {self.game.score_and_mode.get_score()}", True, (255, 255, 255))
@@ -295,6 +299,8 @@ class Snake:
         self.direction_changed = False
         # default speed
         self.speed = 5
+        # move counter
+        self.move_counter = 0
         # add rect to test
         self.rect = self.block.get_rect(topleft=(self.x[0], self.y[0]))
 
@@ -320,7 +326,8 @@ class Snake:
             self.y[0] += self.speed
 
         self.rect = self.block.get_rect(topleft=(self.x[0], self.y[0]))
-        
+        self.move_counter += self.speed
+
     # change direction
     def move_left(self):
         self.direction = 'left'
@@ -340,7 +347,7 @@ class Snake:
 
     # increase length
     def increase_length(self):
-        for i in range(5):
+        for i in range(7):
             self.x.append(self.x[-1])
             self.y.append(self.y[-1])
             self.length += 1
