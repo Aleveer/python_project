@@ -109,6 +109,47 @@ class MainMenu(Screen):
                 print("change mode to: ", mode)
                 break
 
+########## GAME OVER SCREEN ##########
+class GameOverScreen(Screen):
+    def __init__(self, game):
+        super().__init__(game)
+        # Dừng nhạc nền khi vào màn hình Game Over
+        pygame.mixer.music.stop()
+        # Lấy vị trí chuột
+        #self.GAMEOVER_MOUSE_POS = pygame.mouse.get_pos()
+        # Background
+        self.BG = pygame.image.load("resources/background.jpg")
+        # Điểm số
+        self.score = self.game.screen_play.snake.length
+        self.SCORE_TEXT = get_font(30).render(f"The snake have ate {self.score} apples!", True, "#FFFFFF")
+        self.SCORE_RECT = self.SCORE_TEXT.get_rect(center=(640, 280))
+
+        # Text Game Over
+        self.GAMEOVER_TEXT = get_font(100).render("GAME OVER", True, "#FF0000")
+        self.GAMEOVER_RECT = self.GAMEOVER_TEXT.get_rect(center=(640, 150))
+        
+        # Tạo các nút
+        self.RETRY_BUTTON = Button(image=pygame.image.load("resources/Play Rect.png"), pos=(640, 600), 
+                            text_input="RETRY", font=get_font(75), base_color="#d7fcd4", hovering_color="Yellow")
+        
+    def handle_events(self, events):
+        super().handle_events(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.RETRY_BUTTON.checkForInput(self.GAMEOVER_MOUSE_POS):
+                    self.game.screen_play = PlayScreen(self.game)  # Tạo màn chơi mới
+                    self.game.set_screen(self.game.screen_menu)
+    
+    def update(self):
+        self.GAMEOVER_MOUSE_POS = pygame.mouse.get_pos()
+        self.RETRY_BUTTON.changeColor(self.GAMEOVER_MOUSE_POS)
+        self.RETRY_BUTTON.update(self.SCREEN)
+
+    def draw(self):
+        self.SCREEN.blit(self.BG, (0, 0))
+        self.SCREEN.blit(self.GAMEOVER_TEXT, self.GAMEOVER_RECT)
+        self.SCREEN.blit(self.SCORE_TEXT, self.SCORE_RECT)
+        self.RETRY_BUTTON.update(self.SCREEN)
 
 ####### checkForInput ########
 def checkForInput(self, position):
@@ -239,7 +280,7 @@ class PlayScreen(Screen):
         # collision check with itself
         for i in range(2, self.snake.length):
             if self.snake.x[0] == self.snake.x[i] and self.snake.y[0] == self.snake.y[i]:
-                self.game.current_screen = self.game.screen_menu
+                self.game.set_screen(self.game.screen_gameover)
                 # reset screen play 
                 self.game.screen_play = PlayScreen(self.game)
                 # reset score
@@ -248,11 +289,12 @@ class PlayScreen(Screen):
     def temp(self):
         # pygame.mixer.music.stop()
         # self.play_sound("gameover")
-        self.game.current_screen = self.game.screen_menu
+        self.game.set_screen(self.game.screen_gameover)
         # reset screen play
         self.game.screen_play = PlayScreen(self.game)
         # reset score
         self.game.score_and_mode.reset_score()
+
          
     def draw(self):
         # background
@@ -406,6 +448,7 @@ class Game:
         # create screens
         self.screen_play = PlayScreen(self)
         self.screen_menu = MainMenu(self)
+        self.screen_gameover = GameOverScreen(self)
 
         # set the current screen
         self.current_screen = self.screen_menu
