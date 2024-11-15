@@ -129,19 +129,26 @@ class GameOverScreen(Screen):
         self.GAMEOVER_RECT = self.GAMEOVER_TEXT.get_rect(center=(640, 150))
         
         # Tạo các nút
-        self.RETRY_BUTTON = Button(image=pygame.image.load("resources/Play Rect.png"), pos=(640, 600), 
+        self.SAVE_BUTTON = Button(image=pygame.image.load("resources/Play Rect.png"), pos=(640, 500), 
+                            text_input="SAVE", font=get_font(75), base_color="#d7fcd4", hovering_color="Yellow")
+        self.RETRY_BUTTON = Button(image=pygame.image.load("resources/Play Rect.png"), pos=(640, 650), 
                             text_input="RETRY", font=get_font(75), base_color="#d7fcd4", hovering_color="Yellow")
         
     def handle_events(self, events):
         super().handle_events(events)
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.RETRY_BUTTON.checkForInput(self.GAMEOVER_MOUSE_POS):
+                if self.SAVE_BUTTON.checkForInput(self.GAMEOVER_MOUSE_POS):
                     self.game.screen_play = PlayScreen(self.game)  # Tạo màn chơi mới
+                    self.game.set_screen(self.game.leaderboard_screen)
+                if self.RETRY_BUTTON.checkForInput(self.GAMEOVER_MOUSE_POS):
+                    self.game.screen_play = PlayScreen(self.game)
                     self.game.set_screen(self.game.screen_menu)
     
     def update(self):
         self.GAMEOVER_MOUSE_POS = pygame.mouse.get_pos()
+        self.SAVE_BUTTON.changeColor(self.GAMEOVER_MOUSE_POS)
+        self.SAVE_BUTTON.update(self.SCREEN)
         self.RETRY_BUTTON.changeColor(self.GAMEOVER_MOUSE_POS)
         self.RETRY_BUTTON.update(self.SCREEN)
 
@@ -149,6 +156,7 @@ class GameOverScreen(Screen):
         self.SCREEN.blit(self.BG, (0, 0))
         self.SCREEN.blit(self.GAMEOVER_TEXT, self.GAMEOVER_RECT)
         self.SCREEN.blit(self.SCORE_TEXT, self.SCORE_RECT)
+        self.SAVE_BUTTON.update(self.SCREEN)
         self.RETRY_BUTTON.update(self.SCREEN)
 
 ####### checkForInput ########
@@ -156,6 +164,150 @@ def checkForInput(self, position):
     if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
         return True
     return False
+
+class LeaderBoard(Screen):
+    def __init__(self, game):
+        super().__init__(game)
+        self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
+        self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
+        # background
+        self.BG = pygame.image.load("resources/Background.png")
+
+        # Thêm thuộc tính để lưu tên
+        # Đặt kích thước ô nhập liệu
+        self.input_box_width = 400
+        self.input_box_height = 60
+        
+        # Tính toán vị trí x để đặt ô nhập liệu ở giữa
+        self.input_box_x = (1280 - self.input_box_width) // 2  # 1280 là chiều rộng màn hình
+        self.input_box = pygame.Rect(self.input_box_x, 250, self.input_box_width, self.input_box_height)
+
+        self.color_inactive = pygame.Color('lightskyblue3')
+        self.color_active = pygame.Color('dodgerblue2')
+        self.color = self.color_inactive
+        self.text = ''
+        self.active = False
+        self.font = get_font(24)
+
+        # Thêm thuộc tính để lưu trạng thái hiển thị dòng chữ hướng dẫn
+        self.show_prompt = True  # Biến này sẽ xác định xem có hiển thị dòng chữ hay không
+
+        # Tạo nút SUBMIT
+        self.submit_button = pygame.Rect(self.input_box_x, self.input_box.y + self.input_box_height + 10, 430, self.input_box_height)  # Vị trí bên dưới ô nhập liệu
+        self.submit_button_color = pygame.Color('dodgerblue2')
+        self.submit_button_hover_color = pygame.Color('lightskyblue3')
+
+        # Dữ liệu leaderboard
+        self.leaderboard = []  # Danh sách các tuple (tên, điểm)
+        self.max_leaderboard_size = 5  # Số lượng tối đa trong leaderboard
+
+        # Biến để xác định xem khung nhập liệu có hiển thị hay không
+        self.input_visible = True
+
+
+    def handle_events(self, events):
+        super().handle_events(events)
+        for event in events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if self.input_box.collidepoint(event.pos):
+                    self.active = not self.active
+                    self.show_prompt = False
+                else:
+                    self.active = False
+                    self.show_prompt = True
+                self.color = self.color_active if self.active else self.color_inactive
+
+                if self.submit_button.collidepoint(event.pos):
+                    if self.text:  # Đảm bảo tên không rỗng
+                        self.submit_score(self.text, self.game.score_and_mode.get_score())
+                        self.text = ''  # Xóa ô nhập sau khi gửi
+                        self.input_visible = False  # Ẩn khung nhập và nút
+                    self.show_prompt = True  # Hiển thị lại dòng chữ hướng dẫn
+
+            if event.type == pygame.KEYDOWN:
+                if self.active:
+                    if event.key == pygame.K_RETURN:
+                        if self.text:  # Đảm bảo tên không rỗng
+                            # self.submit_score(self.text, self.game.score_and_mode.get_score())
+                            self.text = ''
+                        self.show_prompt = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        self.text = self.text[:-1]
+                    else:
+                        self.text += event.unicode
+
+    def submit_score(self, name, score):
+        # Kiểm tra xem điểm số mới có nằm trong top 5 hay không
+        if len(self.leaderboard) < self.max_leaderboard_size or score > self.leaderboard[-1][1]:
+            # Nếu leaderboard đã đầy, loại bỏ mục có điểm thấp nhất
+            if len(self.leaderboard) == self.max_leaderboard_size:
+                self.leaderboard.pop()  # Loại bỏ mục có điểm thấp nhất
+
+            # Thêm điểm số mới vào leaderboard
+            self.leaderboard.append((name, score))
+
+            # Sắp xếp leaderboard theo điểm số theo thứ tự giảm dần
+            self.leaderboard.sort(key=lambda x: x[1], reverse=True)
+
+            # Giới hạn số lượng mục trong leaderboard chỉ còn 5 mục
+            self.leaderboard = self.leaderboard[:self.max_leaderboard_size]
+
+            # Lưu leaderboard vào file
+            save_leaderboard(self.leaderboard)
+
+        # Xóa ô nhập và ẩn nó
+        self.active = False
+
+
+    def update(self):
+        #self.RESTART_BUTTON.changeColor(pygame.mouse.get_pos())
+        #self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
+        #self.RESTART_BUTTON.update(self.SCREEN)
+        #self.QUIT_BUTTON.update(self.SCREEN)
+        #self.submit_button.update(self.SCREEN)
+        pass
+
+    def draw(self):
+         # background
+        self.SCREEN.blit(self.BG, (0, 0))
+        self.SCREEN.blit(self.GAME_OVER_TEXT, self.GAME_OVER_RECT)
+
+        # Chỉ vẽ ô nhập và nút nếu input_visible là True
+        if self.input_visible:
+            if self.show_prompt:
+                prompt_surface = self.font.render("Enter your name", True, self.color_inactive)
+                prompt_y = self.input_box.y + (self.input_box.height - prompt_surface.get_height()) // 2
+                self.SCREEN.blit(prompt_surface, (self.input_box.x + 5, prompt_y))
+
+            txt_surface = self.font.render(self.text, True, self.color)
+            width = max(430, txt_surface.get_width() + 10)
+            self.input_box.w = width
+            text_y = self.input_box.y + (self.input_box.height - txt_surface.get_height()) // 2
+            self.SCREEN.blit(txt_surface, (self.input_box.x + 5, text_y))
+            
+            # Vẽ viền ô nhập liệu
+            pygame.draw.rect(self.SCREEN, self.color, self.input_box, 2)
+
+            # Vẽ nút SUBMIT
+            mouse_pos = pygame.mouse.get_pos()
+            if self.submit_button.collidepoint(mouse_pos):
+                pygame.draw.rect(self.SCREEN, self.submit_button_hover_color, self.submit_button)
+            else:
+                pygame.draw.rect(self.SCREEN, self.submit_button_color, self.submit_button)
+
+            # Vẽ chữ "GỬI" trên nút
+            submit_text = self.font.render("SUBMIT", True, (255, 255, 255))
+            submit_text_rect = submit_text.get_rect(center=self.submit_button.center)
+            self.SCREEN.blit(submit_text, submit_text_rect)
+
+        # Nếu leaderboard có các mục, hiển thị chúng
+        if self.leaderboard:
+            leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
+            self.SCREEN.blit(leaderboard_title, (640 - leaderboard_title.get_width() // 2, 350))
+
+            for index, (name, score) in enumerate(self.leaderboard):
+                leaderboard_entry = self.font.render(f"{index + 1}. {name}: {score}", True, (255, 255, 255))
+                self.SCREEN.blit(leaderboard_entry, (640 - leaderboard_entry.get_width() // 2, 400 + index * 30))
 
 ########## PLAY SCREEN ##########
 class PlayScreen(Screen):
@@ -449,6 +601,7 @@ class Game:
         self.screen_play = PlayScreen(self)
         self.screen_menu = MainMenu(self)
         self.screen_gameover = GameOverScreen(self)
+        self.leaderboard_screen = LeaderBoard(self)
 
         # set the current screen
         self.current_screen = self.screen_menu
