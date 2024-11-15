@@ -65,7 +65,7 @@ class MainMenu(Screen):
         self.PLAY_BUTTON.update(self.SCREEN)
         self.QUIT_BUTTON.update(self.SCREEN)
         # self.display_test()
-        # self.draw_mode() 
+        self.draw_mode() 
 
     def draw(self):
         # background
@@ -169,7 +169,7 @@ class PlayScreen(Screen):
         self.snake = Snake(self.SCREEN, 2)
         # timer for snake movement
         self.snake_move_timer = 0
-        self.snake_move_delay = 50  # milliseconds
+        self.snake_move_delay = 50  # milliseconds  #the real value handled in class Game
 
     def handle_events(self, events):
         super().handle_events(events)
@@ -488,14 +488,12 @@ class Game:
             # Limit to 60 frames per second
             if self.current_screen == self.screen_play:
                 if self.score_and_mode.get_mode() == "easy":
-                    self.clock.tick(60)
+                    self.screen_play.snake_move_delay = 50
                 elif self.score_and_mode.get_mode() == "normal":
-                    self.clock.tick(15)
+                    self.screen_play.snake_move_delay = 30
                 elif self.score_and_mode.get_mode() == "hard":
-                    self.clock.tick(30)
-            else:
-                self.clock.tick(60)
-
+                    self.screen_play.snake_move_delay = 10
+            self.clock.tick(60)
             # Reset the screen
             pygame.display.update()
 
