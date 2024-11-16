@@ -123,11 +123,11 @@ class GameOverScreen(Screen):
     def __init__(self, game):
         super().__init__(game)
         # Dừng nhạc nền khi vào màn hình Game Over
-        pygame.mixer.music.stop()
+        #pygame.mixer.music.stop()
         # Lấy vị trí chuột
         #self.GAMEOVER_MOUSE_POS = pygame.mouse.get_pos()
         # Background
-        self.BG = pygame.image.load("resources/background.jpg")
+        self.BG = pygame.image.load("resources/Background.png")
         # Điểm số
         # self.score = self.game.score_and_mode.get_score()
         self.SCORE_TEXT = get_font(30).render(f"You lose", True, "#FFFFFF")
@@ -179,7 +179,7 @@ def checkForInput(self, position):
 class LeaderBoard(Screen):
     def __init__(self, game):
         super().__init__(game)
-        self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
+        self.GAME_OVER_TEXT = get_font(60).render("SNAKE GAME", True, "#b68f40")
         self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
         # background
         self.BG = pygame.image.load("resources/Background.png")
@@ -215,8 +215,15 @@ class LeaderBoard(Screen):
         # Biến để xác định xem khung nhập liệu có hiển thị hay không
         self.input_visible = True
 
-        self.REPLAY_BUTTON = Button(image= pygame.image.load("resources/Play Rect.png"), pos=(640, 600),
-                                    text_input="REPLAY", font=get_font(50), base_color="#d7fcd4", hovering_color="Yellow")
+        # Thay đổi kích thước
+        quit_image = pygame.image.load("resources/Quit Rect.png").convert_alpha()
+        quit_image = pygame.transform.scale(quit_image, (150, 50))
+
+        self.REPLAY_BUTTON = Button(image=quit_image, pos=(640, 500),
+                                    text_input="REPLAY", font=get_font(23), base_color="#d7fcd4", hovering_color="Yellow")
+          
+        self.QUIT_BUTTON = Button(image=quit_image, pos=(640, 600), 
+                            text_input="QUIT", font=get_font(23), base_color="#d7fcd4", hovering_color="Yellow")
         
         self.show_leaderboard = False  # Biến này xác định xem có hiển thị bảng xếp hạng hay không
 
@@ -276,6 +283,8 @@ class LeaderBoard(Screen):
                         self.show_leaderboard = False
                         self.game.set_screen(self.game.screen_menu)
                         self.game.score_and_mode.reset_score()
+                    if self.QUIT_BUTTON.checkForInput(event.pos):
+                        self.game.running = False  # Dừng trò chơi
 
             if event.type == pygame.KEYDOWN:
                 if self.active:
@@ -307,7 +316,7 @@ class LeaderBoard(Screen):
         #self.RESTART_BUTTON.changeColor(pygame.mouse.get_pos())
         #self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
         self.REPLAY_BUTTON.update(self.SCREEN)
-        #self.QUIT_BUTTON.update(self.SCREEN)
+        self.QUIT_BUTTON.update(self.SCREEN)
         #self.submit_button.update(self.SCREEN)
 
     def draw(self):
@@ -485,8 +494,8 @@ class PlayScreen(Screen):
                 self.game.screen_play = PlayScreen(self.game)
 
     def collision_wall(self):
-        # pygame.mixer.music.stop()
-        # self.play_sound("gameover")
+        #pygame.mixer.music.stop()
+        #self.play_sound("gameover")
         self.game.set_screen(self.game.screen_gameover)
         # reset screen play
         self.game.screen_play = PlayScreen(self.game)
