@@ -1,7 +1,7 @@
 <!-- Note -->
 ### Note
 
-- handle lại phần quẹo(đợi đi được 40px mới được quẹo tiếp)
+- lỗi flow: chơi -> thua -> save -> nhập tên -> submit ---error
 
 <!-- How to get score and mode (Cách lấy score và mode) -->
 ### How to Get Score and Mode (Cách lấy score và mode)

@@ -174,8 +174,8 @@ def checkForInput(self, position):
 class LeaderBoard(Screen):
     def __init__(self, game):
         super().__init__(game)
-        #self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
-        #self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
+        self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
+        self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
         # background
         self.BG = pygame.image.load("resources/Background.png")
 
