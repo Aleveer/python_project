@@ -17,6 +17,7 @@ def save_leaderboard(leaderboard):
             f.write(f"{name} {score}\n")
     print("Leaderboard saved.")
 
+
 class Screen(ABC):
     def __init__(self,game):
         self.game = game
@@ -62,6 +63,9 @@ class MainMenu(Screen):
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.PLAY_BUTTON.checkForInput(self.MENU_MOUSE_POS):
+                    pygame.mixer.music.load("resources/bg_music.mp3")
+                    pygame.mixer.music.play(loops=-1)
+                    pygame.mixer.music.set_volume(0.5)
                     self.game.set_screen(self.game.screen_play)
                 if self.QUIT_BUTTON.checkForInput(self.MENU_MOUSE_POS):
                     self.game.running = False
@@ -123,7 +127,7 @@ class GameOverScreen(Screen):
     def __init__(self, game):
         super().__init__(game)
         # Dừng nhạc nền khi vào màn hình Game Over
-        #pygame.mixer.music.stop()
+        pygame.mixer.music.stop()
         # Lấy vị trí chuột
         #self.GAMEOVER_MOUSE_POS = pygame.mouse.get_pos()
         # Background
@@ -380,6 +384,16 @@ class PlayScreen(Screen):
         self.snake_move_timer = 0
         self.snake_move_delay = 50  # milliseconds  #the real value handled in class Game
 
+    def play_sound(self, sound):
+        sound = pygame.mixer.Sound(f"resources/{sound}.mp3")
+        pygame.mixer.Sound.play(sound)
+
+    def play_bg_music(self):
+        pygame.mixer.music.load("resources/bg_music.mp3")
+        pygame.mixer.music.play(loops=-1)
+        pygame.mixer.music.set_volume(0.5)
+
+
     def handle_events(self, events):
         super().handle_events(events)
         for event in events:
@@ -478,24 +492,27 @@ class PlayScreen(Screen):
 
         # collision check with food
         if self.snake.collision_check(self.food):
+            self.play_sound("90games")
             self.food.move()
             self.snake.increase_length()
             self.game.score_and_mode.increase_score()
 
         #collision check with wall
         if self.snake.x[0] < 0 or self.snake.x[0] >= 1280-SIZE or self.snake.y[0] < 0 or self.snake.y[0] >= 720-SIZE:
+            pygame.mixer.music.stop()
+            self.play_sound("gameover")
             self.collision_wall()
 
         # collision check with itself
         for i in range(2, self.snake.length):
             if self.snake.x[0] == self.snake.x[i] and self.snake.y[0] == self.snake.y[i]:
+                pygame.mixer.music.stop()
+                self.play_sound("gameover")
                 self.game.set_screen(self.game.screen_gameover)
                 # reset screen play 
                 self.game.screen_play = PlayScreen(self.game)
 
     def collision_wall(self):
-        #pygame.mixer.music.stop()
-        #self.play_sound("gameover")
         self.game.set_screen(self.game.screen_gameover)
         # reset screen play
         self.game.screen_play = PlayScreen(self.game)
