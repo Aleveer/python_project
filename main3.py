@@ -319,9 +319,9 @@ class LeaderBoard(Screen):
     def update(self):
         #self.RESTART_BUTTON.changeColor(pygame.mouse.get_pos())
         #self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
-        if self.show_leaderboard:
+        if not self.show_leaderboard:
             self.REPLAY_BUTTON.changeColor(pygame.mouse.get_pos())
-            self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos
+            self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
         # self.REPLAY_BUTTON.update(self.SCREEN)
         # self.QUIT_BUTTON.update(self.SCREEN)
         #self.submit_button.update(self.SCREEN)

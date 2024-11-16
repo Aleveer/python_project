@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-hj, 3
-=======
-q 2
->>>>>>> 2cdd751eddb86089ff69e223f9cdea7f1ffb88b2
+asd 2
