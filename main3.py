@@ -290,6 +290,18 @@ class LeaderBoard(Screen):
                     if self.QUIT_BUTTON.checkForInput(event.pos):
                         self.game.running = False  # Dừng trò chơi
 
+            # Ấn Enter
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if self.text:
+                    print("ten khong rong: ", self.text)
+                    self.submit_score(self.text, self.game.score_and_mode.get_score())
+                    self.load_leaderboard()
+                    self.text = ''  # Xóa tên nhập sau khi gửi
+                    self.input_visible = False  # Ẩn khung nhập và nút
+                    self.show_leaderboard = True    #Hiển thị bảng xếp hạng
+                self.show_prompt = True  # Hiển thị lại dòng chữ hướng dẫn
+
+            # Nếu active là True, thì cho phép nhập liệu
             if event.type == pygame.KEYDOWN:
                 print("key down")
                 if self.active:
