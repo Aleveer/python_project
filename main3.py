@@ -305,21 +305,6 @@ class LeaderBoard(Screen):
             if event.type == pygame.KEYDOWN:
                 print("key down")
                 if self.active:
-                    # if event.key == pygame.K_RETURN:
-                    #     print("enter")
-                    #     if self.text:  # Đảm bảo tên không rỗng
-                    #         print("ten khong rong")
-                    #         # self.submit_score(self.text, self.game.score_and_mode.get_score())
-                    #         # self.load_leaderboard
-                    #         # self.text = ''
-                    #         # self.input_visible = False
-                    #         # self.show_leaderboard = True
-                    #         self.submit_score(self.text, self.game.score_and_mode.get_score())
-                    #         self.load_leaderboard()
-                    #         self.text = ''  # Xóa tên nhập sau khi gửi
-                    #         self.input_visible = False  # Ẩn khung nhập và nút
-                    #         self.show_leaderboard = True    #Hiển thị bảng xếp hạng
-                    #     self.show_prompt = True
                     if event.key == pygame.K_BACKSPACE:
                         self.text = self.text[:-1]
                     else:
@@ -338,14 +323,6 @@ class LeaderBoard(Screen):
 
     def update(self):
         pass
-        #self.RESTART_BUTTON.changeColor(pygame.mouse.get_pos())
-        #self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
-        # if not self.show_leaderboard:
-        # self.REPLAY_BUTTON.changeColor(pygame.mouse.get_pos())
-        # self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
-        # self.REPLAY_BUTTON.update(self.SCREEN)
-        # self.QUIT_BUTTON.update(self.SCREEN)
-        #self.submit_button.update(self.SCREEN)
 
     def draw(self):
         self.display_test()
