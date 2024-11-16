@@ -320,7 +320,6 @@ class LeaderBoard(Screen):
         # Xóa ô nhập và ẩn nó
         self.active = False
 
-
     def update(self):
         pass
 
