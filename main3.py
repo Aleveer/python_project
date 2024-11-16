@@ -221,13 +221,13 @@ class LeaderBoard(Screen):
 
         # Thay đổi kích thước
         quit_image = pygame.image.load("resources/Quit Rect.png").convert_alpha()
-        quit_image = pygame.transform.scale(quit_image, (150, 50))
+        quit_image = pygame.transform.scale(quit_image, (250, 80))
 
         self.REPLAY_BUTTON = Button(image=quit_image, pos=(640, 500),
-                                    text_input="REPLAY", font=get_font(23), base_color="#d7fcd4", hovering_color="Yellow")
+                                    text_input="REPLAY", font=get_font(35), base_color="#d7fcd4", hovering_color="Yellow")
           
         self.QUIT_BUTTON = Button(image=quit_image, pos=(640, 600), 
-                            text_input="QUIT", font=get_font(23), base_color="#d7fcd4", hovering_color="Yellow")
+                            text_input="QUIT", font=get_font(35), base_color="#d7fcd4", hovering_color="Yellow")
         
         self.show_leaderboard = False  # Biến này xác định xem có hiển thị bảng xếp hạng hay không
 
@@ -291,16 +291,24 @@ class LeaderBoard(Screen):
                         self.game.running = False  # Dừng trò chơi
 
             if event.type == pygame.KEYDOWN:
+                print("key down")
                 if self.active:
-                    if event.key == pygame.K_RETURN:
-                        if self.text:  # Đảm bảo tên không rỗng
-                            print("ten khong rong")
-                            self.submit_score(self.text, self.game.score_and_mode.get_score())
-                            self.leaderboard
-                            self.text = ''
-                            self.show_leaderboard = True
-                        self.show_prompt = True
-                    elif event.key == pygame.K_BACKSPACE:
+                    # if event.key == pygame.K_RETURN:
+                    #     print("enter")
+                    #     if self.text:  # Đảm bảo tên không rỗng
+                    #         print("ten khong rong")
+                    #         # self.submit_score(self.text, self.game.score_and_mode.get_score())
+                    #         # self.load_leaderboard
+                    #         # self.text = ''
+                    #         # self.input_visible = False
+                    #         # self.show_leaderboard = True
+                    #         self.submit_score(self.text, self.game.score_and_mode.get_score())
+                    #         self.load_leaderboard()
+                    #         self.text = ''  # Xóa tên nhập sau khi gửi
+                    #         self.input_visible = False  # Ẩn khung nhập và nút
+                    #         self.show_leaderboard = True    #Hiển thị bảng xếp hạng
+                    #     self.show_prompt = True
+                    if event.key == pygame.K_BACKSPACE:
                         self.text = self.text[:-1]
                     else:
                         self.text += event.unicode
@@ -317,11 +325,12 @@ class LeaderBoard(Screen):
 
 
     def update(self):
+        pass
         #self.RESTART_BUTTON.changeColor(pygame.mouse.get_pos())
         #self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
-        if not self.show_leaderboard:
-            self.REPLAY_BUTTON.changeColor(pygame.mouse.get_pos())
-            self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
+        # if not self.show_leaderboard:
+        # self.REPLAY_BUTTON.changeColor(pygame.mouse.get_pos())
+        # self.QUIT_BUTTON.changeColor(pygame.mouse.get_pos())
         # self.REPLAY_BUTTON.update(self.SCREEN)
         # self.QUIT_BUTTON.update(self.SCREEN)
         #self.submit_button.update(self.SCREEN)
@@ -362,15 +371,17 @@ class LeaderBoard(Screen):
 
         # Nếu leaderboard có các mục, hiển thị chúng
         if self.show_leaderboard:
-            if self.leaderboard:
-                leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
-                self.SCREEN.blit(leaderboard_title, (640 - leaderboard_title.get_width() // 2, 200))
+            leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
+            self.SCREEN.blit(leaderboard_title, (640 - leaderboard_title.get_width() // 2, 200))
 
-                for index, (name, score) in enumerate(self.leaderboard[:5]):
-                    leaderboard_entry = self.font.render(f"{index + 1}. {name}: {score}", True, (255, 255, 255))
-                    self.SCREEN.blit(leaderboard_entry, (500, 250 + index * 30))
-        
-        # self.REPLAY_BUTTON.update(self.SCREEN)
+            for index, (name, score) in enumerate(self.leaderboard[:5]):
+                leaderboard_entry = self.font.render(f"{index + 1}. {name}: {score}", True, (255, 255, 255))
+                self.SCREEN.blit(leaderboard_entry, (500, 250 + index * 30))
+    
+            # Vẽ nút REPLAY và QUIT
+            self.REPLAY_BUTTON.update(self.SCREEN)
+            self.QUIT_BUTTON.update(self.SCREEN)
+
             
 
 ########## PLAY SCREEN ##########
@@ -483,7 +494,7 @@ class PlayScreen(Screen):
         # update mouse position
         self.PLAY_MOUSE_POS = pygame.mouse.get_pos()
         # test ability
-        self.display_test()
+        # self.display_test()
         # update snake rect
         self.snake.rect = self.snake.block.get_rect(topleft=(self.snake.x[0], self.snake.y[0]))
         
