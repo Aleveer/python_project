@@ -126,7 +126,7 @@ class GameOverScreen(Screen):
         self.BG = pygame.image.load("resources/background.jpg")
         # Điểm số
         self.score = self.game.screen_play.snake.length
-        self.SCORE_TEXT = get_font(30).render(f"The snake have ate {self.score} apples!", True, "#FFFFFF")
+        self.SCORE_TEXT = get_font(30).render(f"You lose", True, "#FFFFFF")
         self.SCORE_RECT = self.SCORE_TEXT.get_rect(center=(640, 280))
 
         # Text Game Over
@@ -174,8 +174,8 @@ def checkForInput(self, position):
 class LeaderBoard(Screen):
     def __init__(self, game):
         super().__init__(game)
-        self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
-        self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
+        #self.GAME_OVER_TEXT = get_font(100).render("GAME OVER", True, "#b68f40")
+        #self.GAME_OVER_RECT = self.GAME_OVER_TEXT.get_rect(center=(640, 100))
         # background
         self.BG = pygame.image.load("resources/Background.png")
 
@@ -213,7 +213,18 @@ class LeaderBoard(Screen):
         self.REPLAY_BUTTON = Button(image= pygame.image.load("resources/Play Rect.png"), pos=(640, 500),
                                     text_input="REPLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="Yellow")
         
+        self.show_leaderboard = False
+        self.load_leaderboard()
 
+    def load_leaderboard(self):
+        try:
+            with open("leaderboard.txt", "r") as f:
+                for line in f:
+                    name, score = line.strip().split(" ")
+                    self.leaderboard.append((name, int(score)))
+                self.leaderboard.sort(key=lambda x: x[1], reverse=True)
+        except FileNotFoundError:
+            print("File leaderboard.txt not found.")
 
     def handle_events(self, events):
         super().handle_events(events)
@@ -232,10 +243,12 @@ class LeaderBoard(Screen):
                         self.submit_score(self.text, self.game.score_and_mode.get_score())
                         self.text = ''  # Xóa ô nhập sau khi gửi
                         self.input_visible = False  # Ẩn khung nhập và nút
+                        self.show_leaderboard = True    #Hiển thị bảng xếp hạng
                     self.show_prompt = True  # Hiển thị lại dòng chữ hướng dẫn
                 
-                if self.REPLAY_BUTTON.checkForInput(event.pos):
-                    self.game.set_screen(self.game.screen_menu)
+                if self.show_leaderboard and event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.REPLAY_BUTTON.checkForInput(event.pos):
+                        self.game.set_screen(self.game.screen_menu)
 
             if event.type == pygame.KEYDOWN:
                 if self.active:
@@ -243,6 +256,7 @@ class LeaderBoard(Screen):
                         if self.text:  # Đảm bảo tên không rỗng
                             self.submit_score(self.text, self.game.score_and_mode.get_score())
                             self.text = ''
+                            self.show_leaderboard = True
                         self.show_prompt = True
                     elif event.key == pygame.K_BACKSPACE:
                         self.text = self.text[:-1]
@@ -257,7 +271,7 @@ class LeaderBoard(Screen):
                 self.leaderboard.pop()  # Loại bỏ mục có điểm thấp nhất
 
             # Thêm điểm số mới vào leaderboard
-            self.leaderboard.append((name, score))
+            #self.leaderboard.append((name, score))
 
             # Sắp xếp leaderboard theo điểm số theo thứ tự giảm dần
             self.leaderboard.sort(key=lambda x: x[1], reverse=True)
@@ -314,13 +328,14 @@ class LeaderBoard(Screen):
             self.SCREEN.blit(submit_text, submit_text_rect)
 
         # Nếu leaderboard có các mục, hiển thị chúng
-            if self.leaderboard:
-                leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
-                self.SCREEN.blit(leaderboard_title, (640 - leaderboard_title.get_width() // 2, 350))
+            if self.show_leaderboard:
+                if self.leaderboard:
+                    leaderboard_title = self.font.render("LEADERBOARD", True, (255, 255, 255))
+                    self.SCREEN.blit(leaderboard_title, (640 - leaderboard_title.get_width() // 2, 350))
 
-                for index, (name, score) in enumerate(self.leaderboard):
-                    leaderboard_entry = self.font.render(f"{index + 1}. {name}: {score}", True, (255, 255, 255))
-                    self.SCREEN.blit(leaderboard_entry, (640 - leaderboard_entry.get_width() // 2, 400 + index * 30))
+                    for index, (name, score) in enumerate(self.leaderboard[:5]):
+                        leaderboard_entry = self.font.render(f"{index + 1}. {name}: {score}", True, (255, 255, 255))
+                        self.SCREEN.blit(leaderboard_entry, (640 - leaderboard_entry.get_width() // 2, 400 + index * 30))
             
             self.REPLAY_BUTTON.update(self.SCREEN)
             
